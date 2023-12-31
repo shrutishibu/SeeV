@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "538965249027",
+    "project_id": "seev-606ab",
+    "storage_bucket": "seev-606ab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:538965249027:android:ac289c5595067f23859236",
+        "android_client_info": {
+          "package_name": "com.example.see_v"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlYiDTrIqXkcnCPeVfdyRlrl_TF6BSbeo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
