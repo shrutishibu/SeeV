@@ -1,11 +1,13 @@
-// ignore_for_file: use_super_parameters
+// ignore_for_file: use_super_parameters, library_private_types_in_public_api
 
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:see_v/blogs_page.dart';
 import 'package:see_v/mycv_page.dart';
 import 'package:see_v/pages/signup_page.dart';
 import 'package:see_v/updationpage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:see_v/view_jobs.dart';
 
 class AuthService {
@@ -29,10 +31,77 @@ class AuthService {
 
 AuthService authService = AuthService();
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   final void Function() signOut;
 
   const HomePage({Key? key, required this.signOut}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int totalResumes = 0;
+  int totalUsers = 0;
+  int userBlogs = 0;
+  int userResumes = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchResumeCount();
+    fetchUserCount();
+    fetchUserBlogs();
+    fetchUserResumes();
+  }
+
+  Future<void> fetchResumeCount() async {
+    final QuerySnapshot<Map<String, dynamic>> resumeQuery =
+        await FirebaseFirestore.instance.collection('resumes').get();
+
+    setState(() {
+      totalResumes = resumeQuery.size;
+    });
+  }
+
+  Future<void> fetchUserCount() async {
+    final QuerySnapshot<Map<String, dynamic>> userQuery =
+        await FirebaseFirestore.instance.collection('users').get();
+
+    setState(() {
+      totalUsers = userQuery.size;
+    });
+  }
+
+  Future<void> fetchUserBlogs() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final QuerySnapshot<Map<String, dynamic>> blogQuery = await FirebaseFirestore
+          .instance
+          .collection('blogs')
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      setState(() {
+        userBlogs = blogQuery.size;
+      });
+    }
+  }
+
+  Future<void> fetchUserResumes() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final QuerySnapshot<Map<String, dynamic>> resumeQuery = await FirebaseFirestore
+          .instance
+          .collection('resumes')
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      setState(() {
+        userResumes = resumeQuery.size;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +109,8 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: null,
-        backgroundColor: Colors.blueGrey,
+        title: const Text("Dashboard"),
+        backgroundColor: const Color.fromARGB(255, 139, 202, 234),
       ),
       drawer: Drawer(
         child: ListView(
@@ -54,11 +123,6 @@ class HomePage extends StatelessWidget {
                 backgroundColor: Colors.white,
                 child: Icon(Icons.person),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.home),
-              title: const Text('Home'),
-              onTap: () {},
             ),
             ListTile(
               leading: const Icon(Icons.update),
@@ -119,71 +183,131 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 50.0),
-                    Text(
-                      'Welcome to',
-                      style: TextStyle(
-                        fontSize: 28.0,
-                        fontWeight: FontWeight.bold,
+      body: Center(
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.6, // Set width to 60% of the screen width
+          height: MediaQuery.of(context).size.height * 0.8, // Set height to 80% of the screen 
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                 children: [
+                  const Text(
+                    'SeeV: An innovative tool to step up your career game',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18.0,
+                      color: Colors.black,
+                    ),
+                     textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8.0),
+                  Text(
+                    'A web application that allows you to generate a professional CV that is personalized according to job preferences and acts as a guiding light throughout the process of seeking a job. Take a look at the analytics of our website!',
+                    style: TextStyle(
+                      fontSize: 14.0,
+                      color: Colors.grey[600],
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20.0),
+                  SizedBox(
+                    height: 300.0,
+                    child: Card(
+                      color: const Color.fromARGB(255, 196, 209, 230),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _buildPieChart('Total Resumes', totalResumes),
                       ),
                     ),
-                    SizedBox(height: 10.0),
-                    Text(
-                      'SEEV',
-                      style: TextStyle(
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
+                  ),
+                  const SizedBox(height: 20.0),
+                  SizedBox(
+                    height: 300.0,
+                    child: Card(
+                      color: const Color.fromARGB(255, 222, 210, 191),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _buildPieChart('Blogs Created', userBlogs),
                       ),
                     ),
-                    SizedBox(height: 10.0),
-                    Text(
-                      'An innovative AI tool to step up your career game.',
-                      style: TextStyle(
-                        fontSize: 20.0,
+                  ),
+                  const SizedBox(height: 20.0),
+                  SizedBox(
+                    height: 300.0,
+                    child: Card(
+                      color: const Color.fromARGB(255, 216, 241, 217),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: _buildBarChart('Users and Resumes', totalUsers, userResumes),
                       ),
                     ),
-                    SizedBox(height: 10.0),
-                    Text(
-                      'A web application that allows you to generate a professional CV that is personalized according to job preferences and acts as a guiding light throughout the process of seeking a job',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 20.0),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SizedBox(
-                      width: 800.0,
-                      child: Image.asset(
-                        'assets/homeimage.png',
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _buildPieChart(String title, int data) {
+    List<ChartData> chartData = [ChartData('Total', data)];
+
+    return charts.PieChart(
+      _createPieChartData(chartData),
+      animate: true,
+      defaultRenderer: charts.ArcRendererConfig<String>(
+        arcWidth: 100,
+        arcRendererDecorators: [charts.ArcLabelDecorator<String>()],
+      ),
+    );
+  }
+
+  List<charts.Series<ChartData, String>> _createPieChartData(List<ChartData> chartData) {
+    return [
+      charts.Series<ChartData, String>(
+        id: 'Data',
+        domainFn: (ChartData sales, _) => sales.category,
+        measureFn: (ChartData sales, _) => sales.value.toDouble(),
+        data: chartData,
+        labelAccessorFn: (ChartData sales, _) => '${sales.category}: ${sales.value}',
+      )
+    ];
+  }
+
+  Widget _buildBarChart(String title, int usersData, int resumesData) {
+    List<ChartData> chartData = [
+      ChartData('Users', usersData),
+      ChartData('Resumes', resumesData),
+    ];
+
+    return charts.BarChart(
+      _createBarChartData(chartData),
+      animate: true,
+      behaviors: [charts.SeriesLegend()],
+    );
+  }
+
+  List<charts.Series<ChartData, String>> _createBarChartData(List<ChartData> chartData) {
+    return [
+      charts.Series<ChartData, String>(
+        id: 'Data',
+        domainFn: (ChartData sales, _) => sales.category,
+        measureFn: (ChartData sales, _) => sales.value.toDouble(),
+        data: chartData,
+        labelAccessorFn: (ChartData sales, _) => '${sales.category}: ${sales.value}',
+      )
+    ];
+  }
+}
+
+class ChartData {
+  final String category;
+  final int value;
+
+  ChartData(this.category, this.value);
 }
