@@ -1,4 +1,4 @@
-// ignore_for_file: unused_import, non_constant_identifier_names, avoid_types_as_parameter_names
+// ignore_for_file: unused_import, non_constant_identifier_names, avoid_types_as_parameter_names, use_super_parameters
 
 import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';

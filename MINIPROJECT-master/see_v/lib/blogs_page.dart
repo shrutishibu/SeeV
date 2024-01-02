@@ -1,4 +1,7 @@
+// ignore_for_file: use_super_parameters
+
 import 'package:flutter/material.dart';
+import 'package:see_v/add_blog.dart';
 
 class BlogsPage extends StatelessWidget {
   const BlogsPage({Key? key}) : super(key: key);
@@ -24,10 +27,13 @@ class BlogsPage extends StatelessWidget {
                       actions: [
                         TextButton(
                           onPressed: () {
-                            // Add your functionality for the "Create" button
                             Navigator.pop(context);
-                            // Perform actions for the "Create" button
-                            // Add your code here
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AddBlogPage(),
+                              ),
+                            );
                           },
                           child: const Text('Create'),
                         ),
@@ -92,9 +98,7 @@ class BlogsPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         ElevatedButton(
-                          onPressed: () {
-                            // Add your "Read More" button functionality here
-                          },
+                          onPressed: () {},
                           child: const Text('Read More'),
                         ),
                       ],

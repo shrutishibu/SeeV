@@ -1,7 +1,12 @@
+// ignore_for_file: use_super_parameters
+
 import 'package:flutter/material.dart';
 import 'package:see_v/blogs_page.dart';
+import 'package:see_v/mycv_page.dart';
+import 'package:see_v/pages/signup_page.dart';
 import 'package:see_v/updationpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:see_v/view_jobs.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -69,12 +74,24 @@ class HomePage extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.person),
               title: const Text('My CV'),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ResumesPage())
+                    );
+              },
             ),
             ListTile(
               leading: const Icon(Icons.link),
-              title: const Text('LinkedIn'),
-              onTap: () {},
+              title: const Text('Jobs'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  // ignore: prefer_const_constructors
+                  MaterialPageRoute(builder: (context) => const JobViewPage()),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(Icons.article),
@@ -91,7 +108,13 @@ class HomePage extends StatelessWidget {
             ListTile(
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Log Out'),
-              onTap: signOut,
+              onTap: () {
+                  // Navigate to e_login.dart
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SignUpPage())
+                    );
+                },
             ),
           ],
         ),

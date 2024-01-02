@@ -1,4 +1,4 @@
-// ignore_for_file: unused_field, avoid_print
+// ignore_for_file: unused_field, avoid_print, use_super_parameters, use_build_context_synchronously
 
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,6 +15,7 @@ class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _SignUpPageState createState() => _SignUpPageState();
 }
 
@@ -366,6 +367,7 @@ class _SignUpPageState extends State<SignUpPage> {
         'profile_picture_url': profilePictureUrl,
         'github': '', // Initialize with an empty string
         'linkedin': '', // Initialize with an empty string
+        'role': 'registered_user',
         // Add more fields as needed
       });
 

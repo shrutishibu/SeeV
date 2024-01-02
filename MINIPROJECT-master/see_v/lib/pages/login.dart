@@ -1,9 +1,13 @@
+// ignore_for_file: use_super_parameters, use_build_context_synchronously, sort_child_properties_last
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:see_v/e_login.dart';
 import 'package:see_v/forgot_password.dart';
 import 'package:see_v/home_page.dart';
 import 'package:see_v/pages/signup_page.dart';
-import 'package:see_v/blogs_page.dart'; // Import BlogsPage
+import 'package:see_v/blogs_page.dart';
 
 class Login extends StatefulWidget {
   final Future<void> Function() signOut;
@@ -23,16 +27,15 @@ class _InstaLoginState extends State<Login> {
 
   Future<void> _signIn() async {
     if (_formKey.currentState?.validate() ?? false) {
-      // Form is valid, proceed with sign-in
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
+        UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
-        // Navigate to the home page or perform any other actions after successful login
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => HomePage(signOut: widget.signOut)),
-        );
+
+        await _checkUserRole(userCredential.user?.uid);
+
+        // Navigate to the home page or perform other actions after successful login
       } on FirebaseAuthException catch (e) {
         String errorMessage = 'Login failed. Please check your credentials.';
         if (e.code == 'user-not-found') {
@@ -50,6 +53,27 @@ class _InstaLoginState extends State<Login> {
     }
   }
 
+  Future<void> _checkUserRole(String? userId) async {
+    if (userId != null) {
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      if (userSnapshot.exists) {
+        String userRole = userSnapshot.get('role');
+        if (userRole != 'registered_user') {
+          await FirebaseAuth.instance.signOut();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('You do not have the required role to log in.'),
+            ),
+          );
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => HomePage(signOut: widget.signOut)),
+          );
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,7 +85,7 @@ class _InstaLoginState extends State<Login> {
             children: [
               Flexible(child: Container(), flex: 2),
               SizedBox(
-                width: MediaQuery.of(context).size.width * 0.5, 
+                width: MediaQuery.of(context).size.width * 0.5,
                 child: _centerWidget(),
               ),
               Flexible(child: Container(), flex: 2),
@@ -178,7 +202,8 @@ class _InstaLoginState extends State<Login> {
               child: ElevatedButton(
                 onPressed: _signIn,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: const Color.fromARGB(255, 235, 237, 239), backgroundColor: const Color.fromARGB(255, 134, 149, 235),
+                  foregroundColor: const Color.fromARGB(255, 235, 237, 239),
+                  backgroundColor: const Color.fromARGB(255, 134, 149, 235),
                 ),
                 child: const Text('Log in', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
@@ -213,21 +238,44 @@ class _InstaLoginState extends State<Login> {
               ],
             ),
             const SizedBox(height: 24),
-            SizedBox(
-              width: 200,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SignUpPage()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: const Color.fromARGB(255, 235, 237, 239), backgroundColor: const Color.fromARGB(255, 134, 149, 235),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // Small button "For Employers"
+                TextButton(
+                  onPressed: () {
+                    // Navigate to e_login.dart
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ELogin()),
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color.fromARGB(255, 37, 17, 220),
+                  ),
+                  child: const Text(
+                    'For Employers',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                 ),
-                child: const Text('Sign up', style: TextStyle(fontWeight: FontWeight.bold)),
-              ),
+                SizedBox(
+                  width: 200,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const SignUpPage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: const Color.fromARGB(255, 235, 237, 239),
+                      backgroundColor: const Color.fromARGB(255, 134, 149, 235),
+                    ),
+                    child: const Text('Sign up', style: TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
