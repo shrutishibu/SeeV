@@ -151,6 +151,7 @@ class _UpdateInfoPageState extends State<UpdateInfoPage> {
             ),
             child: Column(
               children: [
+                 const SizedBox(height: 20.0),
                 const Text(
                   'EXPERIENCE:',
                   style: TextStyle(

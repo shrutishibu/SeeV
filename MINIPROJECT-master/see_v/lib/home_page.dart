@@ -1,4 +1,4 @@
-// ignore_for_file: use_super_parameters, library_private_types_in_public_api
+// ignore_for_file: use_super_parameters, library_private_types_in_public_api, use_build_context_synchronously, avoid_print
 
 import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:flutter/material.dart';
@@ -6,7 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:see_v/blogs_page.dart';
 import 'package:see_v/mycv_page.dart';
-import 'package:see_v/pages/signup_page.dart';
+import 'package:see_v/pages/splash_screen.dart';
 import 'package:see_v/updationpage.dart';
 import 'package:see_v/view_jobs.dart';
 
@@ -103,6 +103,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  String feedbackText = '';
+
   @override
   Widget build(BuildContext context) {
     Map<String, String> user = authService.getLoggedInUserInfo();
@@ -176,7 +178,7 @@ class _HomePageState extends State<HomePage> {
                   // Navigate to e_login.dart
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SignUpPage())
+                    MaterialPageRoute(builder: (context) => const SplashScreen())
                     );
                 },
             ),
@@ -245,6 +247,50 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
+                  // Feedback Section
+                  const SizedBox(height: 20.0),
+                  SizedBox(
+                    height: 300.0,
+                    child: Card(
+                      color: const Color.fromARGB(255, 255, 255, 255),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            const Text(
+                              'Feedback',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8.0),
+                            TextField(
+                              maxLines: 4,
+                              onChanged: (value) {
+                                setState(() {
+                                  feedbackText = value;
+                                });
+                              },
+                              decoration: const InputDecoration(
+                                hintText: 'Enter your feedback here',
+                                border: OutlineInputBorder(),
+                              ),
+                            ),
+                            const SizedBox(height: 8.0),
+                            ElevatedButton(
+                              onPressed: () {
+                                _submitFeedback();
+                              },
+                              child: const Text('Submit Feedback'),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -254,6 +300,45 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _submitFeedback() async {
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null && feedbackText.isNotEmpty) {
+      try {
+        await FirebaseFirestore.instance.collection('feedback').add({
+          'userId': user.uid,
+          'email': user.email,
+          'feedbackText': feedbackText,
+          'timestamp': FieldValue.serverTimestamp(),
+        });
+
+        // Reset the feedback text after submission
+        setState(() {
+          feedbackText = '';
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Feedback submitted successfully!'),
+          ),
+        );
+      } catch (e) {
+        print('Error submitting feedback: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Failed to submit feedback. Please try again.'),
+          ),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter your feedback before submitting.'),
+        ),
+      );
+    }
+  }
+}
   Widget _buildPieChart(String title, int data) {
     List<ChartData> chartData = [ChartData('Total', data)];
 
@@ -303,7 +388,7 @@ class _HomePageState extends State<HomePage> {
       )
     ];
   }
-}
+
 
 class ChartData {
   final String category;

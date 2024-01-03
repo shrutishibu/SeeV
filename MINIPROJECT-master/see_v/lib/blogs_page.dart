@@ -114,18 +114,20 @@ class BlogsPage extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              blogData['subtitle'],
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                blogData['subtitle'],
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            Text(blogData['content']),
-            Text('By $userEmail'),
-          ],
+              Text(blogData['content']),
+              Text('By $userEmail'),
+            ],
+          ),
         ),
         actions: [
           TextButton(

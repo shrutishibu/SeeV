@@ -22,11 +22,16 @@ dependencies:
   charts_flutter: ^0.12.0
 
 
+
+
+
+
 flutter:
-  assets:
-    - assets/logofinal.png
-    - assets/cv example1.webp
-    - assets/cvexample2.webp
-    - assets/UPDATE.png
-    - assets/updateimage.png
-    - assets/homeimage.png
+    uses-material-design: true    
+    assets:
+        - assets/logofinal.png
+        - assets/cv example1.webp
+        - assets/cvexample2.webp
+        - assets/UPDATE.png
+        - assets/updateimage.png
+        - assets/homeimage.png
